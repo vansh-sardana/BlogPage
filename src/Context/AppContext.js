@@ -1,5 +1,6 @@
 import React, { createContext, useState } from 'react'
 import { baseUrl } from '../baseUrl';
+import { useNavigate } from 'react-router-dom';
 
 export const AppContext = createContext();
 
@@ -8,17 +9,28 @@ export function AppContextProvider({children}){
     const [currPg, setCurrPg]= useState(1);
     const [totalPg, setTotalPg]= useState(null);
     const [posts, setPosts]= useState([]);
+    const navigate= useNavigate();
 
-    async function fetchData(page= 1){
+    async function fetchData(page, tag, category){
         setLoading(true);
-        const url= `${baseUrl}?page=${page}`;
+        let url= `${baseUrl}?page=${page}`;
+        if(tag){
+            url+=`&tag=${tag}`
+        }
+        if(category){
+            url+=`&category=${category}`;
+        }
         try{
             const res= await fetch(url);
             const data= await res.json();
+            if(!data.posts || data.posts.length===0){
+                throw new Error("Unable to fetch data");
+            }
+            console.log("Data fetched: ");
+            console.log(data);
             setCurrPg(data?.page);
             setPosts(data?.posts);
             setTotalPg(data?.totalPages);
-            // console.log(data);
         }
         catch(e){
             console.log(e);
@@ -31,7 +43,7 @@ export function AppContextProvider({children}){
 
     function changeHandler(page){
         setCurrPg(page);
-        fetchData(page);
+        navigate({search: `page=${page}`});
     }
 
     const value= {

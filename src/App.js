@@ -1,24 +1,46 @@
-import Blogs from './Components/Blogs'
 import './App.css'
 import React, { useContext, useEffect } from 'react'
 import { AppContext } from './Context/AppContext'
-import Pagination from './Components/Pagination'
-
+import { Route, Routes, useLocation, useSearchParams } from 'react-router-dom'
+import BlogPage from './Pages/BlogPage'
+import CategoryPage from './Pages/CategoryPage'
+import Home from './Pages/Home'
+import TagPage from './Pages/TagPage'
 
 const App = () => {
-  const {fetchData}= useContext(AppContext);
-  useEffect(()=>{
-    fetchData();
-  },[]);
+  const { fetchData } = useContext(AppContext);
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (!location.pathname.includes("blog")) {
+      const page = searchParams.get("page") ?? 1;
+      if (location.pathname.includes("categories")) {
+        const category = location.pathname.split("/").at(-1).replace("-", " ");
+        fetchData(page, null, category);
+      }
+      else if (location.pathname.includes("tags")) {
+        const tag = location.pathname.split("/").at(-1).replace("-", " ");
+        fetchData(page, tag);
+      }
+      else {
+        fetchData(page);
+      }
+    }
+  }, [location.pathname, searchParams]);
   return (
-    
-    <div className='flex flex-col items-center min-h-screen max-w-screen relative overflow-x-hidden'>
-      <header className='border w-full text-center p-4 shadow-md sticky top-0 bg-white'>
-        <h2 className='text-3xl font-bold'>CODEHELP BLOGS</h2>
-      </header>
-      <Blogs />
-      <Pagination/>
-    </div>
+
+    <Routes>
+      <Route path='/' element={<Home />} />
+      <Route path='/blog/:blogId' element={<BlogPage />} />
+      <Route path='/tags/:tag' element={<TagPage />} />
+      <Route path='/categories/:category' element={<CategoryPage />} />
+      <Route path='*' element={
+        <div className='flex justify-center items-center flex-col h-[100vh]'>
+          <div>404 Not Found</div>
+        </div>
+      } />
+    </Routes>
   )
 }
 
