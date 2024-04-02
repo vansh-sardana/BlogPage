@@ -22,7 +22,7 @@ const Pagination = () => {
           <div className='font-bold text-sm'>
             Page {currPg} of {totalPg}
           </div>
-          <footer>Copyright © 2021. All Right Reserved by CodeWell Blogs .</footer>
+          <footer className='font-bold text-sm items-center'>Copyright © 2021. All Right Reserved by CodeWell Blogs .</footer>
         </div>
       }
     </div>
